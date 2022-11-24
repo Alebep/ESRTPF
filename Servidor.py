@@ -78,7 +78,7 @@ class Servidor:
 		self.clientInfo['worker'].start()
 
 if __name__ == "__main__":
-	(Servidor()).main()
+	(Servidor()).main() 
 
 
 
