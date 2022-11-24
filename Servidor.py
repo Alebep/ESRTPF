@@ -8,32 +8,37 @@ from RtpPacket import RtpPacket
 
 class Servidor:	
 
-	clientInfo = {}
-
-	def sendRtp(self):
+	def sendRtp(self,nodeOverlay):
 		"""Send RTP packets over UDP."""
 		while True:
-			self.clientInfo['event'].wait(0.05)
+			#for nodeOverlay in self.nodeOverlays:
+			nodeOverlay['event'].wait(0.05)
 			
 			# Stop sending if request is PAUSE or TEARDOWN
-			if self.clientInfo['event'].isSet():
+			if nodeOverlay['event'].isSet():
 				break
 				
-			data = self.clientInfo['videoStream'].nextFrame()
+			data = nodeOverlay['videoStream'].nextFrame()
 			if data:
-				frameNumber = self.clientInfo['videoStream'].frameNbr()
+				frameNumber = nodeOverlay['videoStream'].frameNbr()
 				try:
-					address = self.clientInfo['rtpAddr']
-					port = int(self.clientInfo['rtpPort'])
+					address = nodeOverlay['rtpAddr']
+					port = int(nodeOverlay['rtpPort'])
 					packet =  self.makeRtp(data, frameNumber)
-					self.clientInfo['rtpSocket'].sendto(packet,(address,port))
+					nodeOverlay['rtpSocket'].sendto(packet,(address,port))
+					# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
+					init_num_jumps = '0' 
+					nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
+					# Rota começa vazia e vai sendo construída ao longo das ligações.
+					rota_inicial = 'Servidor'
+					nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,9999))
 				except:
 					print("Connection Error")
 					print('-'*60)
 					traceback.print_exc(file=sys.stdout)
 					print('-'*60)
 		# Close the RTP socket
-		self.clientInfo['rtpSocket'].close()
+		nodeOverlay['rtpSocket'].close()
 		print("All done!")
 
 	def makeRtp(self, payload, frameNbr):
@@ -58,27 +63,25 @@ class Servidor:
 	def main(self):
 		try:
 			# Get the media file name
-			filename = sys.argv[1]
+			filename = "movie.Mjpeg"
 			print("Using provided video file ->  " + filename)
+			# Enviar para os próximos nós a stream de vídeo
+        	# bem como informação acerca das rotas e do nº de saltos.
+			#for i in range(1,len(sys.argv)):
+			nodeOverlay = {}
+			# videoStream
+			nodeOverlay['videoStream'] = VideoStream(filename)
+			# sockets
+			nodeOverlay['rtpPort'] = 22751
+			nodeOverlay['rtpAddr'] = sys.argv[1]
+			print("Sending to Addr:" + nodeOverlay['rtpAddr'] + ":" + str(nodeOverlay['rtpPort']))
+			# Create a new socket for RTP/UDP
+			nodeOverlay["rtpSocket"] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+			nodeOverlay['event'] = threading.Event()
+			nodeOverlay['worker']= threading.Thread(target=self.sendRtp, args=(nodeOverlay,))
+			nodeOverlay['worker'].start()
 		except:
 			print("[Usage: Servidor.py <videofile>]\n")
-			filename = "movie.Mjpeg"
-			print("Using default video file ->  " + filename)
-
-		# videoStram
-		self.clientInfo['videoStream'] = VideoStream(filename)
-		# socket
-		self.clientInfo['rtpPort'] = 25000
-		self.clientInfo['rtpAddr'] = socket.gethostbyname('127.0.0.1')
-		print("Sending to Addr:" + self.clientInfo['rtpAddr'] + ":" + str(self.clientInfo['rtpPort']))
-		# Create a new socket for RTP/UDP
-		self.clientInfo["rtpSocket"] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.clientInfo['event'] = threading.Event()
-		self.clientInfo['worker']= threading.Thread(target=self.sendRtp)
-		self.clientInfo['worker'].start()
-
+			
 if __name__ == "__main__":
-	(Servidor()).main() 
-
-
-
+	(Servidor()).main()
