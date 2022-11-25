@@ -1,5 +1,6 @@
-t1 = int(input())
-t2 = int(input())
+import sys
+t1 = int(sys.argv[1])
+t2 = int(sys.argv[2])
 tG = 0
 tP = 0
 
