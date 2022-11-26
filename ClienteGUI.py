@@ -5,6 +5,8 @@ import socket, threading, sys, traceback, os
 
 from RtpPacket import RtpPacket
 
+from Vars import *
+
 CACHE_FILE_NAME = "cache-"
 CACHE_FILE_EXT = ".jpg"
 
@@ -21,8 +23,6 @@ class ClienteGUI:
 		self.sessionId = 0
 		self.requestSent = -1
 		self.teardownAcked = 0
-		#self.openRtpPort()
-		#self.playMovie()
 		self.frameNbr = 0
 		
 	def createWidgets(self):
@@ -70,7 +70,6 @@ class ClienteGUI:
 		"""Pause button handler."""
 		#print("Not implemented...")
 		self.rtpSocket.sendto((str('pause')).encode(), (self.addr,self.port))
-		#self.rtpSocket.close()
 	
 	def playMovie(self):
 		"""Play button handler."""
@@ -88,7 +87,7 @@ class ClienteGUI:
 		routes_not_received=True
 		while True:
 			try:
-				data = self.rtpSocket.recv(20480)
+				data = self.rtpSocket.recv(BUFF_SIZE)
 				if data:
 					try:
 						data_decoded = data.decode('utf-8')

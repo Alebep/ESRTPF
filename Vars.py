@@ -1,1 +1,2 @@
 Port_Stream = 9998
+BUFF_SIZE = 65536
