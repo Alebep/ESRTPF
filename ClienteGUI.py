@@ -21,8 +21,8 @@ class ClienteGUI:
 		self.sessionId = 0
 		self.requestSent = -1
 		self.teardownAcked = 0
-		self.openRtpPort()
-		self.playMovie()
+		#self.openRtpPort()
+		#self.playMovie()
 		self.frameNbr = 0
 		
 	def createWidgets(self):
@@ -57,7 +57,9 @@ class ClienteGUI:
 	
 	def setupMovie(self):
 		"""Setup button handler."""
-		print("Not implemented...")
+		#print("Not implemented...")
+		self.openRtpPort()
+		#self.playMovie()
 	
 	def exitClient(self):
 		"""Teardown button handler."""
@@ -66,11 +68,14 @@ class ClienteGUI:
 
 	def pauseMovie(self):
 		"""Pause button handler."""
-		print("Not implemented...")
+		#print("Not implemented...")
+		self.rtpSocket.sendto((str('pause')).encode(), (self.addr,self.port))
+		#self.rtpSocket.close()
 	
 	def playMovie(self):
 		"""Play button handler."""
 		# Create a new thread to listen for RTP packets
+		self.frameNbr = 0
 		threading.Thread(target=self.listenRtp).start()
 		self.playEvent = threading.Event()
 		self.playEvent.clear()
@@ -105,6 +110,10 @@ class ClienteGUI:
 						print("Nº Saltos:",num_jumps)
 						print('Rotas:',rotas)
 											
+						if(currFrameNbr == 500):
+							currFrameNbr = 0
+							self.frameNbr = 0
+       
 						if currFrameNbr > self.frameNbr: # Discard the late packet
 							self.frameNbr = currFrameNbr
 							self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
@@ -144,9 +153,11 @@ class ClienteGUI:
 		self.rtpSocket.settimeout(120)
 		
 		try:
-			# Bind the socket to the address using the RTP port
-			self.rtpSocket.bind((self.addr, self.port))
-			print('\nBind \n')
+		#	# Bind the socket to the address using the RTP port
+		#	self.rtpSocket.bind((self.addr, self.port))
+		#	print('\nBind \n')
+			self.rtpSocket.sendto(str('stepup').encode(), (self.addr,self.port))
+			print('pedido enviado com sucesso')
 		except:
 			tkinter.messageBox.showwarning('Unable to Bind', 'Unable to bind PORT=%d' %self.rtpPort)
 

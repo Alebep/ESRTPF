@@ -6,10 +6,14 @@ import sys, traceback, threading, socket
 from VideoStream import VideoStream
 from RtpPacket import RtpPacket
 
-class Servidor:	
 
+from Vars import *
+
+class Servidor:	
+	flagPause = False
 	def sendRtp(self,nodeOverlay):
 		"""Send RTP packets over UDP."""
+		#frameNumber = 0
 		while True:
 			#for nodeOverlay in self.nodeOverlays:
 			nodeOverlay['event'].wait(0.05)
@@ -22,24 +26,29 @@ class Servidor:
 			if data:
 				frameNumber = nodeOverlay['videoStream'].frameNbr()
 				try:
-					address = nodeOverlay['rtpAddr']
-					port = int(nodeOverlay['rtpPort'])
+					global address #= nodeOverlay['rtpAddr']
+					global port #= int(nodeOverlay['rtpPort'])
 					packet =  self.makeRtp(data, frameNumber)
-					nodeOverlay['rtpSocket'].sendto(packet,(address,port))
-					# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
-					init_num_jumps = '0' 
-					nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
-					# Rota começa vazia e vai sendo construída ao longo das ligações.
-					rota_inicial = 'Servidor'
-					nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,9999))
+					#envia o stream
+					if(nodeOverlay['com'].isSet()):
+						nodeOverlay['rtpSocket'].sendto(packet,(address,port))
+						# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
+						init_num_jumps = '0' 
+						nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
+						# Rota começa vazia e vai sendo construída ao longo das ligações.
+						rota_inicial = 'Servidor'
+						nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,port))
+					if(frameNumber == 500):
+						nodeOverlay['videoStream'] = VideoStream("movie.Mjpeg")
 				except:
 					print("Connection Error")
 					print('-'*60)
 					traceback.print_exc(file=sys.stdout)
 					print('-'*60)
 		# Close the RTP socket
-		nodeOverlay['rtpSocket'].close()
+		#nodeOverlay['rtpSocket'].close()
 		print("All done!")
+		nodeOverlay['event'].clear()
 
 	def makeRtp(self, payload, frameNbr):
 		"""RTP-packetize the video data."""
@@ -60,7 +69,7 @@ class Servidor:
 		return rtpPacket.getPacket()
 
 	
-	def main(self):
+	def main(self,sk,nodeOverlay):
 		try:
 			# Get the media file name
 			filename = "movie.Mjpeg"
@@ -68,20 +77,58 @@ class Servidor:
 			# Enviar para os próximos nós a stream de vídeo
         	# bem como informação acerca das rotas e do nº de saltos.
 			#for i in range(1,len(sys.argv)):
-			nodeOverlay = {}
 			# videoStream
 			nodeOverlay['videoStream'] = VideoStream(filename)
 			# sockets
-			nodeOverlay['rtpPort'] = 22751
-			nodeOverlay['rtpAddr'] = sys.argv[1]
-			print("Sending to Addr:" + nodeOverlay['rtpAddr'] + ":" + str(nodeOverlay['rtpPort']))
+			#nodeOverlay['rtpPort'] = port
+			#nodeOverlay['rtpAddr'] = ip#sys.argv[1]
+			#print("Sending to Addr:" + nodeOverlay['rtpAddr'] + ":" + str(nodeOverlay['rtpPort']))
 			# Create a new socket for RTP/UDP
-			nodeOverlay["rtpSocket"] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			nodeOverlay['event'] = threading.Event()
+			nodeOverlay["rtpSocket"] = sk#socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			nodeOverlay['worker']= threading.Thread(target=self.sendRtp, args=(nodeOverlay,))
 			nodeOverlay['worker'].start()
 		except:
 			print("[Usage: Servidor.py <videofile>]\n")
-			
+
+
+def main():
+    # chamar o streaming fora do ciclo, e colocar uma flag que pega o endereco e define quando mandar
+    serverW = Servidor()
+    global port
+    global address
+	#serverW.
+	# variavel compartilhada em threadsW
+    nodeOverlay = {}
+    nodeOverlay['event'] = threading.Event()
+    nodeOverlay['com'] = threading.Event()
+    s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    s.bind((sys.argv[1],Port_Stream))#Port_Stream
+    serverW.main(s, nodeOverlay)
+    while True:
+        try:
+            print('A escuta')
+            msg, addr = s.recvfrom(1024)
+            print(f"Cliente {addr} conectado")
+            #print('mensagem: {0}'.format(msg.decode()))
+            #s.sendto(str(addr[1]).encode(), addr)
+            if(msg.decode() == 'stepup'):
+                address = addr[0]
+                port = addr[1]
+                nodeOverlay['com'].set()
+            	#(Servidor()).main(addr[0], addr[1], s, nodeOverlay)
+            elif(msg.decode() == 'stop'):
+                nodeOverlay['event'].set()
+            elif(msg.decode() == 'pause'):
+                nodeOverlay['com'].clear()
+            else:
+                pass
+        except:
+            print('Ocorreu algum erro!')
+            break
+    s.close()
+
+address : str
+port : int
+
 if __name__ == "__main__":
-	(Servidor()).main()
+    main()    
