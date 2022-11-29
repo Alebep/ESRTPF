@@ -31,13 +31,15 @@ class BuildRoute:
     def AddRoute(self, routa):
         global routers
         global count
-        routersp[count] = routa
+        count = 0
+        routers[count] = routa
         count += 1
         
     def sendToNeighbors(self, routa):
         global neighbors
         global myIP
-        routa = routa + [myIP]
+        #routa = routa + [myIP]
+        routa.append(myIP)
         print(routa)
         sdata = pickle.dumps(routa)
         for x in neighbors:
@@ -51,28 +53,31 @@ class BuildRoute:
     
     def listenNeighbors(self, conn):
         data = conn.recv(BUFF_SIZE)
-        try:
-            if data:
-                sdata = pickle.loads(data)
-                if( type(sdata)  == type(list())):
-                    AddRoute(sdata)
-                    th =  threading.Thread(target=self.sendToNeighbors, args=(sdata))
-                    th.start()
-                elif( type(sdata) == type(str())):
-                    pass
-                else:
-                    print('o tipo: '+type(sdata))
+        #try:
+        if data:
+            sdata = pickle.loads(data)
+            if( type(sdata)  == type(list())):
+                self.AddRoute(sdata)
+                print(type(sdata))
+                t = sdata + [myIP]
+                print(t)
+                #th =  threading.Thread(target=self.sendToNeighbors, args=(sdata))
+                #th.start()
+            elif( type(sdata) == type(str())):
+                pass
             else:
-                print('Pacote Vazio')
-        except:
-            print('erro na decodificacao')
+                print('o tipo: '+type(sdata))
+        else:
+            print('Pacote Vazio')
+        #except:
+        #    print('erro na decodificacao')
     
     def main(self):
         while True:
             self.tcpSocket.listen(5)
             conn, addr = self.tcpSocket.accept()
             #threading.Thread(target=ServerRoute.main)
-            th =   threading.Thread(target=self.listenNeighbors, args=(conn))
+            th = threading.Thread(target=self.listenNeighbors, args=(conn,))
             th.start()
             
 
@@ -205,6 +210,9 @@ count : int
 
 def main():
     global neighbors
+    global routers
+    global myIP
+    routers = {}
     myIP = sys.argv[2]
     #codigo tcp
     """try:
