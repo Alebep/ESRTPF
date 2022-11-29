@@ -148,8 +148,10 @@ def Encaminhamento(ip_node):
 
 rotaSelect : list
 num_jumps : int
-rotas : str
+routers : dict
+route : list
 neighbors : list
+myIP : str
 
 def main():
     global neighbors
