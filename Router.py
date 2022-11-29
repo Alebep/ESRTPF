@@ -43,7 +43,8 @@ class BuildRoute:
         print(routers)
         for x in neighbors:
             if(not (x in routa)):
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print(x)
+                """s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((x,Port_Monitor))
                 time.sleep(0.01)
                 s.send(sdata)
