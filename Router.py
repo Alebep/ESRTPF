@@ -61,7 +61,7 @@ class BuildRoute:
                 elif( type(sdata) == type(str())):
                     pass
                 else:
-                    print('o tipo: 'type(sdata))
+                    print('o tipo: '+type(sdata))
         except:
             print('erro na decodificacao')
     
@@ -236,4 +236,13 @@ def main():
             tcpBootSocket = {}
             tcpBootSocket['tcpSocket'] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             tcpBootSocket['tcpSocket'].bind((sys.argv[2], Port_Boot))
-            tcpBootSocket['tcpSocket'].sendto((str('boot')).encode(), (
+            tcpBootSocket['tcpSocket'].sendto((str('boot')).encode(), (sys.argv[1], Port_Boot))
+            msg, addr = tcpBootSocket['tcpSocket'].recvfrom(BUFF_SIZE)
+            v = pickle.loads(msg)
+            neighbors = v
+    except:
+        print('erro')
+    #"""
+if __name__ == "__main__":
+	main()
+    
