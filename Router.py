@@ -16,9 +16,9 @@ o cliente manda um pedido (ex:stepup), o node recebe e envia recursivamente,
 
 """
 class Monitor:
-    def __init__(self, rotas):
+    def __init__(self, sk):
        self.tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-       self.rotas = rotas
+       #self.rotas = rotas
     
     def sendPacket(self):
          for x in rotas:     
@@ -26,7 +26,7 @@ class Monitor:
 
 class BuildRoute:
     def __init__(self, sk):
-        self.tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tcpSocket = sk#socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     def AddRoute(self, routa):
         global routers
@@ -56,19 +56,24 @@ class BuildRoute:
                 sdata = pickle.loads(data)
                 if( type(sdata)  == type(list())):
                     AddRoute(sdata)
-                    th = threading.Thread(target=sendToNeighbors, args=(sdata))
+                    th =  threading.Thread(target=self.sendToNeighbors, args=(sdata))
                     th.start()
                 elif( type(sdata) == type(str())):
                     pass
                 else:
                     print('o tipo: '+type(sdata))
+            else:
+                print('Pacote Vazio')
         except:
             print('erro na decodificacao')
     
     def main(self):
         while True:
-            self.listen(5)
-            conn, addr = self.accept()
+            self.tcpSocket.listen(5)
+            conn, addr = self.tcpSocket.accept()
+            #threading.Thread(target=ServerRoute.main)
+            th =   threading.Thread(target=self.listenNeighbors, args=(conn))
+            th.start()
             
 
 class Bootstrap:
@@ -90,9 +95,6 @@ class Bootstrap:
     def Getneighbors(self):
         # A variavel dst contem o par ip:porta de quem fez o pedido, o que e feito e ir a lista buscar vizinhos
         self.__neighbors_addr = Test[self.dst[0]]
-    
-    def Askneighborsaddress(self, dst):
-        pass
     
     def main(self):
         while True:
@@ -240,9 +242,17 @@ def main():
             msg, addr = tcpBootSocket['tcpSocket'].recvfrom(BUFF_SIZE)
             v = pickle.loads(msg)
             neighbors = v
+            #print(neighbors[0])
     except:
-        print('erro')
+        print('erro no BootStrap')
     #"""
+    # construindo Rotas
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((myIP, Port_Monitor))
+    ServerRoute = BuildRoute(s)
+    RouteThread = threading.Thread(target=ServerRoute.main)
+    RouteThread.start()
+    
 if __name__ == "__main__":
 	main()
     
