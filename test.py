@@ -4,9 +4,8 @@ import pickle
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('10.0.0.1', Port_Monitor))
-data = [sys.argv[1]]
+data = ['10.0.8.5', sys.argv[1], sys.argv[2]]
 sdata = pickle.dumps(data)
-time.sleep(1)
 s.send(sdata)
 time.sleep(1)
 s.close()

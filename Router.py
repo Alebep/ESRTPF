@@ -31,7 +31,6 @@ class BuildRoute:
     def AddRoute(self, routa):
         global routers
         global count
-        count = 0
         routers[count] = routa
         count += 1
         
@@ -39,9 +38,9 @@ class BuildRoute:
         global neighbors
         global myIP
         #routa = routa + [myIP]
-        routa.append(myIP)
         print(routa)
         sdata = pickle.dumps(routa)
+        print(routers)
         for x in neighbors:
             if(not (x in routa)):
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,7 +48,7 @@ class BuildRoute:
                 time.sleep(0.01)
                 s.send(sdata)
                 time.sleep(0.02)
-                s.close()
+                s.close()#"""
     
     def listenNeighbors(self, conn):
         data = conn.recv(BUFF_SIZE)
@@ -58,11 +57,11 @@ class BuildRoute:
             sdata = pickle.loads(data)
             if( type(sdata)  == type(list())):
                 self.AddRoute(sdata)
-                print(type(sdata))
+                #print(type(sdata))
                 t = sdata + [myIP]
-                print(t)
-                #th =  threading.Thread(target=self.sendToNeighbors, args=(sdata))
-                #th.start()
+                #print(t)
+                th =  threading.Thread(target=self.sendToNeighbors, args=(t,))
+                th.start()
             elif( type(sdata) == type(str())):
                 pass
             else:
@@ -212,6 +211,8 @@ def main():
     global neighbors
     global routers
     global myIP
+    global count
+    count = 0
     routers = {}
     myIP = sys.argv[2]
     #codigo tcp
