@@ -1,7 +1,7 @@
 import socket, tkinter, sys, pickle, threading
 import netifaces as ni
 from RtpPacket import RtpPacket
-from time import time
+from time import time, sleep
 from Vars import *
 """ 
 Um ideia valida e termos para cada no uma lista 
@@ -37,18 +37,20 @@ class BuildRoute:
     def sendToNeighbors(self, routa):
         global neighbors
         global myIP
-        #routa = routa + [myIP]
+        routa = routa + [myIP]
         print(routa)
         sdata = pickle.dumps(routa)
         print(routers)
+        print(time())
         for x in neighbors:
             if(not (x in routa)):
                 print(x)
-                """s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                #"""
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((x,Port_Monitor))
-                time.sleep(0.01)
+                #time.sleep(1)
                 s.send(sdata)
-                time.sleep(0.02)
+                sleep(1)
                 s.close()#"""
     
     def listenNeighbors(self, conn):
@@ -59,9 +61,9 @@ class BuildRoute:
             if( type(sdata)  == type(list())):
                 self.AddRoute(sdata)
                 #print(type(sdata))
-                t = sdata + [myIP]
+                #t = sdata + [myIP]
                 #print(t)
-                th =  threading.Thread(target=self.sendToNeighbors, args=(t,))
+                th =  threading.Thread(target=self.sendToNeighbors, args=(sdata,))
                 th.start()
             elif( type(sdata) == type(str())):
                 pass
