@@ -24,6 +24,53 @@ class Monitor:
          for x in rotas:     
              self.tcpSocket.sendto((str((time()))).encode(), address)
 
+class BuildRoute:
+    def __init__(self, sk):
+        self.tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    def AddRoute(self, routa):
+        global routers
+        global count
+        routersp[count] = routa
+        count += 1
+        
+    def sendToNeighbors(self, routa):
+        global neighbors
+        global myIP
+        routa = routa + [myIP]
+        print(routa)
+        sdata = pickle.dumps(routa)
+        for x in neighbors:
+            if(not (x in routa)):
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((x,Port_Monitor))
+                time.sleep(0.01)
+                s.send(sdata)
+                time.sleep(0.02)
+                s.close()
+    
+    def listenNeighbors(self, conn):
+        data = conn.recv(BUFF_SIZE)
+        try:
+            if data:
+                sdata = pickle.loads(data)
+                if( type(sdata)  == type(list())):
+                    AddRoute(sdata)
+                    th = threading.Thread(target=sendToNeighbors, args=(sdata))
+                    th.start()
+                elif( type(sdata) == type(str())):
+                    pass
+                else:
+                    print('o tipo: 'type(sdata))
+        except:
+            print('erro na decodificacao')
+    
+    def main(self):
+        while True:
+            self.listen(5)
+            conn, addr = self.accept()
+            
+
 class Bootstrap:
     def __init__(self, sk):
         #quantidade de vizinhos
@@ -152,9 +199,11 @@ routers : dict
 route : list
 neighbors : list
 myIP : str
+count : int
 
 def main():
     global neighbors
+    myIP = sys.argv[2]
     #codigo tcp
     """try:
         if sys.argv[1] == '-bt':
@@ -187,13 +236,4 @@ def main():
             tcpBootSocket = {}
             tcpBootSocket['tcpSocket'] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             tcpBootSocket['tcpSocket'].bind((sys.argv[2], Port_Boot))
-            tcpBootSocket['tcpSocket'].sendto((str('boot')).encode(), (sys.argv[1], Port_Boot))
-            msg, addr = tcpBootSocket['tcpSocket'].recvfrom(BUFF_SIZE)
-            v = pickle.loads(msg)
-            print(v)
-    except:
-        print('erro')
-    #"""
-if __name__ == "__main__":
-	main()
-    
+            tcpBootSocket['tcpSocket'].sendto((str('boot')).encode(), (
