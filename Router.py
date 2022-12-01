@@ -28,12 +28,27 @@ class BuildRoute:
     def __init__(self, sk):
         self.tcpSocket = sk#socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
+    # Adiciona uma nova rota
     def AddRoute(self, routa):
         global routers
         global count
-        routers[count] = routa
-        count += 1
+        if(not self.thisRouteExist(routa)):
+            routers[count] = routa
+            count += 1
         
+    # essa funcao verifica se na tabela de rotas essa rota j existe
+    def thisRouteExist(self, rota):
+        global routers
+        verif = False
+        if(count > 0):
+            for i in range(count):
+                if(rota == routers[i]):
+                    verif = True
+                    break
+        return verif
+    
+    # Essa funcao envia a rota ate o presente no, para todos os vizinhos
+    #execepto para o que enviou a mensagem
     def sendToNeighbors(self, routa):
         global neighbors
         global myIP
@@ -53,6 +68,8 @@ class BuildRoute:
                 sleep(1)
                 s.close()#"""
     
+    # Essa funcao recebe a rota e decodifica, 
+    # e chama tds as outras
     def listenNeighbors(self, conn):
         data = conn.recv(BUFF_SIZE)
         #try:
@@ -75,6 +92,8 @@ class BuildRoute:
         #    print('erro na decodificacao')
     
     def main(self):
+        # vamos colocar uma variavel booleana do while e ele vai para 
+        #quando tds a rotas tiverem formadas
         while True:
             self.tcpSocket.listen(5)
             conn, addr = self.tcpSocket.accept()
