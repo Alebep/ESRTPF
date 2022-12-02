@@ -24,6 +24,47 @@ class Monitor:
          for x in rotas:     
              self.tcpSocket.sendto((str((time()))).encode(), address)
 
+
+class Stream:
+    def __init__(self, sk):
+        self.active = False
+        self.udpsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)#sk
+    
+    def activeOrNo(self):
+        global target
+        if(len(target) > 0):
+            self.active = True
+        else:
+            self.active = False
+    
+    def forwardingStream(self, packet):
+        global target
+        self.activeOrNo()
+        if(self.active):
+            for x in target:
+                self.udpsocket.sendto(packet, (x, Port_Stream))
+    
+    def sentToServer(self, packet):
+        self.udpsocket.sendto(packet,(rotaSelect[-1],Port_Stream))
+    
+    def main(self):
+        global target
+        while True:
+            packet, addr = self.udpsocket.recvfrom(BUFF_SIZE)
+            if packet:
+                try:
+                    packet_decoded = packet.decode('utf-8')
+                    # Se receber informação em vez do packet de vídeo:
+                    # as opcoes sao stepup, pause
+                    if packet_decoded[0]=='s':
+                        target.append(addr[0])
+                    else:
+                        target.remove(addr[0])
+                except:
+                    self.forwardingStream(packet)
+            else:
+                print('Pacote Vazio')
+
 class BuildRoute:
     def __init__(self, sk):
         self.tcpSocket = sk#socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -156,15 +197,15 @@ def mainOrigal():
             """Listen for RTP packets"""
             data = rtpSocket.recv(20480)
             try:
-                data_decoded = data.decode('utf-8')
+                packet_decoded = data.decode('utf-8')
                 # Se receber informação em vez do packet de vídeo:
-                if data_decoded[0]=='S':
+                if packet_decoded[0]=='S':
                     if routes_not_received:
-                        rotas = data_decoded + ' -> ' + router_gateway
+                        rotas = packet_decoded + ' -> ' + router_gateway
                         routes_not_received=False
                 else:
                     if jumps_not_received:
-                        num_jumps = int(data_decoded) + 1
+                        num_jumps = int(packet_decoded) + 1
                         jumps_not_received = False
             except:
                 # Caso contrário recebe o packet com o vídeo.
@@ -220,14 +261,22 @@ def Encaminhamento(ip_node):
     rtpSocket.close()
 
     print("All done!")
-
+    
+    
+# A rota selecionada para enviar os pacotes
 rotaSelect : list
+# numero de Saltos ate o servidor
 num_jumps : int
+# Tabela de Rotas
 routers : dict
-route : list
+# Todos os vizinhos do presente no, informacao vem do bootstrap
 neighbors : list
+# O IP do presente NO
 myIP : str
+# Numero de rotas, comeca em 0
 count : int
+# Todos os nos que vao receber encaminhamento do stream
+target : list
 
 def main():
     global neighbors
