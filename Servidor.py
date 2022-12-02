@@ -33,11 +33,11 @@ class Servidor:
 					if(nodeOverlay['com'].isSet()):
 						nodeOverlay['rtpSocket'].sendto(packet,(address,port))
 						# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
-						init_num_jumps = '0' 
-						nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
+						#init_num_jumps = '0' 
+						#nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
 						# Rota começa vazia e vai sendo construída ao longo das ligações.
-						rota_inicial = 'Servidor'
-						nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,port))
+						#rota_inicial = 'Origem1'
+						#nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,port))
 					if(frameNumber == 500):
 						nodeOverlay['videoStream'] = VideoStream("movie.Mjpeg")
 				except:

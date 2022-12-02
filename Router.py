@@ -23,12 +23,23 @@ class Monitor:
     def sendPacket(self):
          for x in rotas:     
              self.tcpSocket.sendto((str((time()))).encode(), address)
+    
+    @staticmethod
+    def selectBestRouteByJump(tableRoute):
+        min_length = sys.maxsize
+        select_route = None
+        for x in tableRoute:
+            if(len(tableRoute[x]) < int(min_length)):
+                min_length = len(routers[x])
+                select_route = x
+        return tableRoute[select_route]
+                
 
 
 class Stream:
     def __init__(self, sk):
         self.active = False
-        self.udpsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)#sk
+        self.udpsocket = sk#socket.socket(socket.AF_INET, socket.SOCK_DGRAM)#sk
     
     def activeOrNo(self):
         global target
@@ -46,10 +57,14 @@ class Stream:
     
     def sentToServer(self, packet):
         self.udpsocket.sendto(packet,(rotaSelect[-1],Port_Stream))
+        
+    def verifIfthisTargetExist(self):
+        pass
     
     def main(self):
         global target
         while True:
+            self.activeOrNo()
             packet, addr = self.udpsocket.recvfrom(BUFF_SIZE)
             if packet:
                 try:
@@ -58,8 +73,12 @@ class Stream:
                     # as opcoes sao stepup, pause
                     if packet_decoded[0]=='s':
                         target.append(addr[0])
+                        if(not self.active):
+                            self.sentToServer(packet)
                     else:
                         target.remove(addr[0])
+                        if(len(target) == 0):
+                            self.sentToServer(packet)
                 except:
                     self.forwardingStream(packet)
             else:
@@ -332,6 +351,13 @@ def main():
     ServerRoute = BuildRoute(s)
     RouteThread = threading.Thread(target=ServerRoute.main)
     RouteThread.start()
+    
+    #selecionara a melhor rota com base nos saltos
+    rotaSelect = Monitor.selectBestRouteByJump(routers)
+    
+    #Encaminhando o stream
+    
+    
     
 if __name__ == "__main__":
 	main()
