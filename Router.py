@@ -38,6 +38,7 @@ class Monitor:
 
 class Stream:
     def __init__(self, sk):
+        # se target tem elementos e True, se nao e false
         self.active = False
         self.udpsocket = sk#socket.socket(socket.AF_INET, socket.SOCK_DGRAM)#sk
     
@@ -58,28 +59,49 @@ class Stream:
     def sentToServer(self, packet):
         self.udpsocket.sendto(packet,(rotaSelect[-1],Port_Stream))
         
-    def verifIfthisTargetExist(self):
-        pass
+    def verifIfthisTargetExist(ip):
+        verif = False
+        for x in target:
+            if(x == ip):
+                verif = True
+        return verif
+            
+    def AddTarget(self, ip):
+        if(self.active):
+            # verificar se esse enderco ja se encontra na lista de tragets
+            # se nao entao adiciona
+            if(not self.verifIfthisTargetExist(ip)):
+                 target.append(ip)
+        else:
+            target.append(ip)
     
     def main(self):
         global target
+        print('Encaminhamento do Stream ativado')
         while True:
             self.activeOrNo()
             packet, addr = self.udpsocket.recvfrom(BUFF_SIZE)
             if packet:
                 try:
                     packet_decoded = packet.decode('utf-8')
+                    print(packet_decoded)
+                    print(f"Rota selecionada {rotaSelect}")
                     # Se receber informação em vez do packet de vídeo:
                     # as opcoes sao stepup, pause
-                    if packet_decoded[0]=='s':
-                        target.append(addr[0])
+                    if (packet_decoded[0] == 's'):
+                        print('iniciar Enacminhamento ate o servidor')
+                        self.AddTarget(addr[0])
+                        #target.append(addr[0])
                         if(not self.active):
+                            print('vai para o servidor')
                             self.sentToServer(packet)
                     else:
+                        #depois colocar um tratamento aqui
                         target.remove(addr[0])
                         if(len(target) == 0):
                             self.sentToServer(packet)
                 except:
+                    print(f"estoua a encaminhar {target}")
                     self.forwardingStream(packet)
             else:
                 print('Pacote Vazio')
@@ -92,9 +114,12 @@ class BuildRoute:
     def AddRoute(self, routa):
         global routers
         global count
+        global rotaSelect
         if(not self.thisRouteExist(routa)):
             routers[count] = routa
             count += 1
+            #selecionara a melhor rota com base nos saltos
+            rotaSelect = Monitor.selectBestRouteByJump(routers)
         
     # essa funcao verifica se na tabela de rotas essa rota j existe
     def thisRouteExist(self, rota):
@@ -302,6 +327,10 @@ def main():
     global routers
     global myIP
     global count
+    global target
+    global rotaSelect
+    rotaSelect = []
+    target = []
     count = 0
     routers = {}
     myIP = sys.argv[2]
@@ -352,11 +381,14 @@ def main():
     RouteThread = threading.Thread(target=ServerRoute.main)
     RouteThread.start()
     
-    #selecionara a melhor rota com base nos saltos
-    rotaSelect = Monitor.selectBestRouteByJump(routers)
+    
     
     #Encaminhando o stream
-    
+    udpsocketStream = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udpsocketStream.bind((sys.argv[2], Port_Stream))
+    videoStream = Stream(udpsocketStream)
+    serviceForwarding = threading.Thread(target=videoStream.main) 
+    serviceForwarding.start()
     
     
 if __name__ == "__main__":

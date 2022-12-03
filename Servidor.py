@@ -2,10 +2,11 @@ import sys, socket
 
 from random import randint
 import sys, traceback, threading, socket
+import pickle
 
 from VideoStream import VideoStream
 from RtpPacket import RtpPacket
-
+from time import time,sleep
 
 from Vars import *
 
@@ -31,6 +32,7 @@ class Servidor:
 					packet =  self.makeRtp(data, frameNumber)
 					#envia o stream
 					if(nodeOverlay['com'].isSet()):
+						print('estou a mandar')
 						nodeOverlay['rtpSocket'].sendto(packet,(address,port))
 						# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
 						#init_num_jumps = '0' 
@@ -90,12 +92,24 @@ class Servidor:
 		except:
 			print("[Usage: Servidor.py <videofile>]\n")
 
+def Boot(ip):
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((ip, Port_Monitor))
+	data = [sys.argv[1]]
+	sdata = pickle.dumps(data)
+	s.send(sdata)
+	sleep(1)
+	s.close()
+ 
+# sys.argv[1] -> ip do servidor
+#sys.argv[2] -> ip do no a frente do servidor
 
 def main():
     # chamar o streaming fora do ciclo, e colocar uma flag que pega o endereco e define quando mandar
     serverW = Servidor()
     global port
     global address
+    #threading.Thread(target=Boot, args=(sys.argv[2],)).start()
 	#serverW.
 	# variavel compartilhada em threadsW
     nodeOverlay = {}
@@ -112,6 +126,7 @@ def main():
             #print('mensagem: {0}'.format(msg.decode()))
             #s.sendto(str(addr[1]).encode(), addr)
             if(msg.decode() == 'stepup'):
+                print('chegou pedido')
                 address = addr[0]
                 port = addr[1]
                 nodeOverlay['com'].set()
