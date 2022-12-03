@@ -54,26 +54,26 @@ class Stream:
         self.activeOrNo()
         if(self.active):
             for x in target:
-                self.udpsocket.sendto(packet, (x, Port_Stream))
+                self.udpsocket.sendto(packet,x)
     
     def sentToServer(self, packet):
         self.udpsocket.sendto(packet,(rotaSelect[-1],Port_Stream))
         
-    def verifIfthisTargetExist(ip):
+    def verifIfthisTargetExist(addr):
         verif = False
         for x in target:
-            if(x == ip):
+            if(x == addr):
                 verif = True
         return verif
             
-    def AddTarget(self, ip):
+    def AddTarget(self, addr):
         if(self.active):
             # verificar se esse enderco ja se encontra na lista de tragets
             # se nao entao adiciona
-            if(not self.verifIfthisTargetExist(ip)):
-                 target.append(ip)
+            if(not self.verifIfthisTargetExist(addr)):
+                 target.append(addr)
         else:
-            target.append(ip)
+            target.append(addr)
     
     def main(self):
         global target
@@ -90,19 +90,20 @@ class Stream:
                     # as opcoes sao stepup, pause
                     if (packet_decoded[0] == 's'):
                         print('iniciar Enacminhamento ate o servidor')
-                        self.AddTarget(addr[0])
+                        self.AddTarget(addr)
                         #target.append(addr[0])
                         if(not self.active):
                             print('vai para o servidor')
                             self.sentToServer(packet)
                     else:
                         #depois colocar um tratamento aqui
-                        target.remove(addr[0])
+                        target.remove(addr)
                         if(len(target) == 0):
                             self.sentToServer(packet)
                 except:
                     print(f"estoua a encaminhar {target}")
                     self.forwardingStream(packet)
+                    #threading.Thread(target=self.forwardingStream, args=(packet)).start()
             else:
                 print('Pacote Vazio')
 

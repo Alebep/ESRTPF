@@ -16,4 +16,4 @@ s.bind(sys.argv[1],Port_Stream)
 
 while True:
     packet, addr = s.recvfrom(BUFF_SIZE)
-    s.sendto(packet,sys.argv[2])
+    s.sendto(packet,(sys.argv[2], Port_Stream))
