@@ -109,7 +109,7 @@ def main():
     serverW = Servidor()
     global port
     global address
-    threading.Thread(target=Boot, args=(sys.argv[2],)).start()
+    #threading.Thread(target=Boot, args=(sys.argv[2],)).start()
 	#serverW.
 	# variavel compartilhada em threadsW
     nodeOverlay = {}
