@@ -59,7 +59,7 @@ class Stream:
     def sentToServer(self, packet):
         self.udpsocket.sendto(packet,(rotaSelect[-1],Port_Stream))
         
-    def verifIfthisTargetExist(addr):
+    def verifIfthisTargetExist(self,addr):
         verif = False
         for x in target:
             if(x == addr):
@@ -67,12 +67,13 @@ class Stream:
         return verif
             
     def AddTarget(self, addr):
+        global target
         if(self.active):
             # verificar se esse enderco ja se encontra na lista de tragets
             # se nao entao adiciona
             if(not self.verifIfthisTargetExist(addr)):
-                 target.append(addr)
-                 print('adiconou target')
+                target.append(addr)
+                print('adiconou target')
         else:
             target.append(addr)
             print('adiconou target')
