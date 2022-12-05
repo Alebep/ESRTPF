@@ -1,8 +1,12 @@
+# Porta de onde passa o video
 Port_Stream = 11998
 BUFF_SIZE = 65536
 Port_Stream2 = 11999
+#Porta Construcao de Rotas
 Port_Monitor = 12000
+#porta BootStarp
 Port_Boot = 15159
+
 
 # teste
 Test = {
