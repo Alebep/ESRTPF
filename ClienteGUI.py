@@ -86,37 +86,44 @@ class ClienteGUI:
 		jumps_not_received=True
 		routes_not_received=True
 		while True:
-			try:
-				data = self.rtpSocket.recv(BUFF_SIZE)
-				if data:
+			#try:
+			data = self.rtpSocket.recv(BUFF_SIZE)
+			if data:
+				try:
+					data_decoded = data.decode('utf-8')
+					print(data_decoded)
+					# Se receber informação em vez do packet de vídeo:
+					"""if data_decoded[0]=='S':
+						if routes_not_received:
+							rotas = data_decoded + ' -> ' + self.addr + ' (Cliente)\n'
+							routes_not_received=False
+					else:
+						if jumps_not_received:
+							num_jumps = int(data_decoded) + 1
+							jumps_not_received = False"""
+				except:
+					rtpPacket = RtpPacket()
+					rtpPacket.decode(data)
+					
+					currFrameNbr = rtpPacket.seqNum()
+					print("Current Seq Num: " + str(currFrameNbr))
+					print(' ')
+					#print("Nº Saltos:",num_jumps)
+					#print('Rotas:',rotas)
+										
+					if(currFrameNbr == 500):
+						currFrameNbr = 0
+						self.frameNbr = 0
+					#"""
+					if currFrameNbr > self.frameNbr: # Discard the late packet#"""
+						self.frameNbr = currFrameNbr
+					#"""
 					try:
-						data_decoded = data.decode('utf-8')
-						# Se receber informação em vez do packet de vídeo:
-						if data_decoded[0]=='S':
-							if routes_not_received:
-								rotas = data_decoded + ' -> ' + self.addr + ' (Cliente)\n'
-								routes_not_received=False
-						else:
-							if jumps_not_received:
-								num_jumps = int(data_decoded) + 1
-								jumps_not_received = False
+						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
 					except:
-						rtpPacket = RtpPacket()
-						rtpPacket.decode(data)
-						
-						currFrameNbr = rtpPacket.seqNum()
-						print("Current Seq Num: " + str(currFrameNbr))
-						print("Nº Saltos:",num_jumps)
-						print('Rotas:',rotas)
-											
-						if(currFrameNbr == 500):
-							currFrameNbr = 0
-							self.frameNbr = 0
-       
-						if currFrameNbr > self.frameNbr: # Discard the late packet
-							self.frameNbr = currFrameNbr
-							self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
-						
+						pass
+			"""		
+
 			except:
 				# Stop listening upon requesting PAUSE or TEARDOWN
 				if self.playEvent.isSet(): 
@@ -125,7 +132,7 @@ class ClienteGUI:
 				self.rtpSocket.shutdown(socket.SHUT_RDWR)
 				self.rtpSocket.close()
 				break
-				
+			#"""	
 	
 	def writeFrame(self, data):
 		"""Write the received frame to a temp image file. Return the image file."""
@@ -138,10 +145,12 @@ class ClienteGUI:
 	
 	def updateMovie(self, imageFile):
 		"""Update the image file as video frame in the GUI."""
-		photo = ImageTk.PhotoImage(Image.open(imageFile))
-		self.label.configure(image = photo, height=288) 
-		self.label.image = photo
-		
+		try:
+			photo = ImageTk.PhotoImage(Image.open(imageFile))
+			self.label.configure(image = photo, height=288) 
+			self.label.image = photo
+		except:
+			pass	
 	
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""

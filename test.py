@@ -14,10 +14,11 @@ time.sleep(1)
 s.close()#"""
 
 def forwarded(x,th):
+    global packet
     while True:
-        if(dispara.isSet()):
-            print(f"Dispara {th['bind']}")
-            s.sendto(packet, x)
+        #msg, addr = s.recvfrom(BUFF_SIZE)
+        print(f"Dispara {th['bind']}")
+        s.sendto(packet, x)
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -37,7 +38,7 @@ global dispara
 dispara = threading.Event()
 while True:
     packet, addr = s.recvfrom(BUFF_SIZE)
-    dispara.clear()
+    #dispara.clear()
     try:
         packetDecoded = packet.decode()
         if(packetDecoded == 'stepup'):
@@ -48,7 +49,7 @@ while True:
             target[addr[0]]['bind'] = addr
             target[addr[0]]['thread'] = threading.Thread(target=forwarded, args=(addr,target[addr[0]],))
             target[addr[0]]['thread'].start()
-            print(target)
+            #print(target)
         #pass
     #"""
     except:

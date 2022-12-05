@@ -72,8 +72,10 @@ class Stream:
             # se nao entao adiciona
             if(not self.verifIfthisTargetExist(addr)):
                  target.append(addr)
+                 print('adiconou target')
         else:
             target.append(addr)
+            print('adiconou target')
     
     def main(self):
         global target
@@ -89,12 +91,13 @@ class Stream:
                     # Se receber informação em vez do packet de vídeo:
                     # as opcoes sao stepup, pause
                     if (packet_decoded[0] == 's'):
+                        threading.Thread(target=self.AddTarget, args=(addr,)).start()
                         print('iniciar Enacminhamento ate o servidor')
-                        self.AddTarget(addr)
                         #target.append(addr[0])
                         if(not self.active):
                             print('vai para o servidor')
                             self.sentToServer(packet)
+                            print('foi para o servidor')
                     else:
                         #depois colocar um tratamento aqui
                         target.remove(addr)
