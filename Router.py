@@ -2,6 +2,7 @@ import socket, tkinter, sys, pickle, threading
 import netifaces as ni
 from RtpPacket import RtpPacket
 from time import time, sleep
+import time as tm
 from Vars import *
 """ 
 Um ideia valida e termos para cada no uma lista 
@@ -99,12 +100,15 @@ class Monitor:
             #    pass
         if(count2 > 1):
             self.selectBestRoute()
+            print(f"rota selecionada {rotaSelect}")
+            print(routesMonitor)
             
     def __receviAndSend(self, conn):
         global myIP
         global neighbors
         packetList = conn.recv(BUFF_SIZE)
-        self.timeSend = time()
+        print('recebeu monitoramento')
+        self.timeSend = tm.time()
         if packetList:
             RouteFromAnte = pickle.loads(packetList)
             if( type(RouteFromAnte)  == type(list())):
@@ -125,6 +129,8 @@ class Monitor:
                         s.close()#"""
         
     def main(self):
+        sleep(1)
+        print('Monitoramento Ativado')
         while True:
             self.tcpSocket.listen(5)
             conn, addr = self.tcpSocket.accept()
@@ -446,6 +452,7 @@ def main():
     global target
     global rotaSelect
     global routesMonitor
+    global count2
     routesMonitor = {}
     rotaSelect = []
     target = []

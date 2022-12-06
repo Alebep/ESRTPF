@@ -101,6 +101,18 @@ def Boot(ip):
 	sleep(1)
 	s.close()
  
+def Monitor(ip):
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	#s.connect((ip, Port_realMonitor))
+	sleep(1)
+	t = sys.argv[1]
+	while True:
+		s.connect((ip, Port_realMonitor))
+		data = [t,time()]
+		sdata = pickle.dumps(data)
+		s.send(sdata)
+		sleep(2)
+		print('enviou')
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
 
@@ -109,7 +121,8 @@ def main():
     serverW = Servidor()
     global port
     global address
-    threading.Thread(target=Boot, args=(sys.argv[2],)).start()
+    Boot(sys.argv[2])
+    threading.Thread(target=Monitor, args=(sys.argv[2],)).start()
 	#serverW.
 	# variavel compartilhada em threadsW
     nodeOverlay = {}
