@@ -41,32 +41,30 @@ class Monitor:
                 if(routesMonitor[x]['time']<tp):
                     tG = tp
                     G = p
-                    p = routesMonitor[x]
+                    p = routesMonitor[x] 
                     tp = routesMonitor[x]['time']
                 else:
                     G = routesMonitor[x]
                     tG = routesMonitor[x]['time']
 
                 if(float((tG/tp)-1) < 0.15):
-                    if(len(G) < len(p)):
+                    if(len(G['route']) < len(p['route'])):
+                        print('Grande')
                         select = G
+                        tp = tG
+                        p = select
                     else:
+                        print('pequeno')
                         select = p
-                    print(select['route'])
+                    print(select)
                 else:
                     select = p
                     print(select['route'])
                     #"""
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        if(select['route'] == rotaSelect):
+            pass
+        else:
+            rotaSelect = select['route']
     
     def thisRoutExists(self, route):
         global routesMonitor
