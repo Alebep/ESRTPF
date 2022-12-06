@@ -18,12 +18,58 @@ o cliente manda um pedido (ex:stepup), o node recebe e envia recursivamente,
 class Monitor:
     def __init__(self, sk):
        self.tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       self.timeSend = None
+       self.timeRouteSelect = 0
        #self.rotas = rotas
     
-    def sendPacket(self):
-        pass
+    def selectBestRoute(self):
+        global routesMonitor
+        # inicializar o tempo, para comparacao
+        tp = routesMonitor[0]['time']
+        # rota do menor tempo
+        p = routesMonitor[0]
+        # rota do maior tempo
+        G = None
+        # inicializar maior tempo
+        tG = float(sys.maxsize)
+        # variavel que vai guardar a rota selecionada, inicializa com a rota inicial do menor tempo
+        select = p
+        for x in routesMonitor:    
+            if(tp == routesMonitor[x]['time']):
+                pass
+            else:
+                if(routesMonitor[x]['time']<tp):
+                    tG = tp
+                    G = p
+                    p = routesMonitor[x]
+                    tp = routesMonitor[x]['time']
+                else:
+                    G = routesMonitor[x]
+                    tG = routesMonitor[x]['time']
+
+                if(float((tG/tp)-1) < 0.15):
+                    if(len(G) < len(p)):
+                        select = G
+                    else:
+                        select = p
+                    print(select['route'])
+                else:
+                    select = p
+                    print(select['route'])
+                    #"""
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     def thisRoutExists(self, route):
+        global routesMonitor
         verif = False
         if(count2 > 0):
             for i in range(count2):
@@ -32,29 +78,57 @@ class Monitor:
                     break
         return verif
 
-    def Add(self, route):
+    def position(self, route):
+        position = None
+        for i in range(count2):
+            if(route == routesMonitor[i]['route']):
+                position = i
+        return position
+    
+    def Add(self, route, time):
         global count2
+        global routesMonitor
+        global rotaSelect
         if(not self.thisRoutExists(route)):
-            routesMonitor[count2] = {'route': route[:-1], 'time': route[-1]}
+            routesMonitor[count2] = {'route': route[:-1], 'time': time}
             count2 += 1
+        else:
+            pos = self.position(route)
+            #try:
+            routesMonitor[pos]['time'] = time
+            #except:
+            #    pass
         
-    def __recevi(self, conn):
+            
+    def __receviAndSend(self, conn):
+        global myIP
+        global neighbors
         packetList = conn.recv(BUFF_SIZE)
+        self.timeSend = time()
         if packetList:
             RouteFromAnte = pickle.loads(packetList)
             if( type(RouteFromAnte)  == type(list())):
-               self.Add(RouteFromAnte)
-               
-                
-    
+                #tempo ate esse no em milisegundos
+                time = (self.timeSend - RouteFromAnte[-1])*1000
+                self.Add(RouteFromAnte, time)
+                data = RouteFromAnte[:-1] + [myIP, RouteFromAnte[-1]]
+                sdata = pickle.dumps(data)
+                for x in neighbors:
+                    if(not (x in RouteFromAnte[:-1])):
+                        print(x)
+                        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        s.connect((x,Port_realMonitor))
+                        #time.sleep(1)
+                        s.send(sdata)
+                        sleep(0.39)
+                        s.close()#"""
+        
     def main(self):
         while True:
             self.tcpSocket.listen(5)
             conn, addr = self.tcpSocket.accept()
-            
+            threading.Thread(target=self.__receviAndSend, args=(conn,)).start()
         
-        
-    
     @staticmethod
     def selectBestRouteByJump(tableRoute):
         min_length = sys.maxsize
@@ -370,9 +444,12 @@ def main():
     global count
     global target
     global rotaSelect
+    global routesMonitor
+    routesMonitor = {}
     rotaSelect = []
     target = []
     count = 0
+    count2 = 0
     routers = {}
     myIP = sys.argv[2]
     #codigo tcp
