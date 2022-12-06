@@ -6,7 +6,8 @@ Port_Stream2 = 11999
 Port_Monitor = 12000
 #porta BootStarp
 Port_Boot = 15159
-
+#Porta para o Monitoramento
+Port_realMonitor = 15125
 
 # teste
 Test = {

@@ -21,8 +21,39 @@ class Monitor:
        #self.rotas = rotas
     
     def sendPacket(self):
-         for x in rotas:     
-             self.tcpSocket.sendto((str((time()))).encode(), address)
+        pass
+    
+    def thisRoutExists(self, route):
+        verif = False
+        if(count2 > 0):
+            for i in range(count2):
+                if(route == routesMonitor[i]['route']):
+                    verif = True
+                    break
+        return verif
+
+    def Add(self, route):
+        global count2
+        if(not self.thisRoutExists(route)):
+            routesMonitor[count2] = {'route': route[:-1], 'time': route[-1]}
+            count2 += 1
+        
+    def __recevi(self, conn):
+        packetList = conn.recv(BUFF_SIZE)
+        if packetList:
+            RouteFromAnte = pickle.loads(packetList)
+            if( type(RouteFromAnte)  == type(list())):
+               self.Add(RouteFromAnte)
+               
+                
+    
+    def main(self):
+        while True:
+            self.tcpSocket.listen(5)
+            conn, addr = self.tcpSocket.accept()
+            
+        
+        
     
     @staticmethod
     def selectBestRouteByJump(tableRoute):
@@ -329,6 +360,8 @@ count : int
 target : list
 # Tabela de Rotas com o Tempo
 routesMonitor : dict
+#contador para rotas com tempo
+count2 : int
 
 def main():
     global neighbors
@@ -400,6 +433,7 @@ def main():
     serviceForwarding.start()
     
     #monitoramento
+    
     
 if __name__ == "__main__":
 	main()
