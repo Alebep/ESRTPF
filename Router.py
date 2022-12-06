@@ -210,7 +210,8 @@ class Bootstrap:
     
     def Getneighbors(self):
         # A variavel dst contem o par ip:porta de quem fez o pedido, o que e feito e ir a lista buscar vizinhos
-        self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
+        #self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
+        self.__neighbors_addr = Test[self.dst[0]]
     
     def main(self):
         while True:
@@ -326,6 +327,8 @@ myIP : str
 count : int
 # Todos os nos que vao receber encaminhamento do stream
 target : list
+# Tabela de Rotas com o Tempo
+routesMonitor : dict
 
 def main():
     global neighbors
@@ -357,8 +360,8 @@ def main():
             tcpBootSocket = {}
             print('bootstrap ativado')
             #ThisNodeAddr = 
-            #neighbors = Test[sys.argv[2]] #teste
-            neighbors = nodes_neighbors[sys.argv[2]] #Final
+            neighbors = Test[sys.argv[2]] #teste
+            #neighbors = nodes_neighbors[sys.argv[2]] #Final
             #print(f"{Port_Boot}")
             tcpBootSocket['tcpSocket'] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
             tcpBootSocket['tcpSocket'].bind((sys.argv[2], Port_Boot))
@@ -396,6 +399,7 @@ def main():
     serviceForwarding = threading.Thread(target=videoStream.main) 
     serviceForwarding.start()
     
+    #monitoramento
     
 if __name__ == "__main__":
 	main()
