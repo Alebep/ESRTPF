@@ -17,13 +17,14 @@ o cliente manda um pedido (ex:stepup), o node recebe e envia recursivamente,
 """
 class Monitor:
     def __init__(self, sk):
-       self.tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       self.tcpSocket = sk#socket.socket(socket.AF_INET, socket.SOCK_STREAM)
        self.timeSend = None
        self.timeRouteSelect = 0
        #self.rotas = rotas
     
     def selectBestRoute(self):
         global routesMonitor
+        global rotaSelect
         # inicializar o tempo, para comparacao
         tp = routesMonitor[0]['time']
         # rota do menor tempo
@@ -32,7 +33,7 @@ class Monitor:
         G = None
         # inicializar maior tempo
         tG = float(sys.maxsize)
-        # variavel que vai guardar a rota selecionada, inicializa com a rota inicial do menor tempo
+        # variavel que vai guardar a rota selecionada, inicializa com a rota inicial do tempo inicial
         select = p
         for x in routesMonitor:    
             if(tp == routesMonitor[x]['time']):
@@ -96,7 +97,8 @@ class Monitor:
             routesMonitor[pos]['time'] = time
             #except:
             #    pass
-        
+        if(count2 > 1):
+            self.selectBestRoute()
             
     def __receviAndSend(self, conn):
         global myIP
@@ -109,6 +111,7 @@ class Monitor:
                 #tempo ate esse no em milisegundos
                 time = (self.timeSend - RouteFromAnte[-1])*1000
                 self.Add(RouteFromAnte, time)
+                #RouteFromAnte[-1] representa o tempo com origem no servidor
                 data = RouteFromAnte[:-1] + [myIP, RouteFromAnte[-1]]
                 sdata = pickle.dumps(data)
                 for x in neighbors:
@@ -508,7 +511,11 @@ def main():
     serviceForwarding.start()
     
     #monitoramento
-    
+    tcpMonitor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcpMonitor.bind((myIP,Port_realMonitor))
+    ServiceMonitor = Monitor(tcpMonitor)
+    thMonitor = threading.Thread(target=ServiceMonitor.main)
+    thMonitor.start()
     
 if __name__ == "__main__":
 	main()
