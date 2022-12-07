@@ -70,6 +70,8 @@ routesMonitor[5]['time'] = 0.000000000101
 routesMonitor[4]['time'] = 0.0000000001
 routesMonitor[4] = {'route': ['10.2.3.5'], 'time': 0.0000000001}
 
+
+"""
 #print(routesMonitor[1])
 tp = routesMonitor[0]['time']
 p = routesMonitor[0]
@@ -104,4 +106,24 @@ for x in routesMonitor:
             print(select['route'])
             #"""
 
-print(routesMonitor[4])
+#print(routesMonitor[4])
+verif = False
+route = ['10.2.3.5']
+count2 = 7
+if(count2 > 0):
+    for i in range(count2):
+        if(route == routesMonitor[i]['route']):
+            verif = True
+            break
+print(verif)
+#print(routesMonitor[4]['route'] == route)
+
+for i in range(count2):
+            if(route == routesMonitor[i]['route']):
+                position = i
+                break
+print(i)
+routesMonitor[i]['time'] = 10
+
+print(routesMonitor)
+

@@ -70,10 +70,12 @@ class Monitor:
     
     def thisRoutExists(self, route):
         global routesMonitor
+        global count2
         verif = False
         if(count2 > 0):
             for i in range(count2):
-                if(route == routesMonitor[i]['route']):
+                if(route[:-1] == routesMonitor[i]['route']):
+                    print('igual')
                     verif = True
                     break
         return verif
@@ -81,8 +83,9 @@ class Monitor:
     def position(self, route):
         position = None
         for i in range(count2):
-            if(route == routesMonitor[i]['route']):
+            if(route[:-1] == routesMonitor[i]['route']):
                 position = i
+                break
         return position
     
     def Add(self, route, time):
@@ -90,14 +93,17 @@ class Monitor:
         global routesMonitor
         global rotaSelect
         if(not self.thisRoutExists(route)):
+            print('adiconei')
             routesMonitor[count2] = {'route': route[:-1], 'time': time}
             count2 += 1
         else:
+            print('mudei time')
             pos = self.position(route)
             #try:
             routesMonitor[pos]['time'] = time
             #except:
             #    pass
+            #"""
         if(count2 > 1):
             self.selectBestRoute()
             print(f"rota selecionada {rotaSelect}")

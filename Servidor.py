@@ -102,17 +102,18 @@ def Boot(ip):
 	s.close()
  
 def Monitor(ip):
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	#s.connect((ip, Port_realMonitor))
-	sleep(1)
+	#sleep(1)
 	t = sys.argv[1]
 	while True:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((ip, Port_realMonitor))
 		data = [t,time()]
 		sdata = pickle.dumps(data)
 		s.send(sdata)
-		sleep(2)
+		sleep(20)
 		print('enviou')
+		s.close()
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
 
