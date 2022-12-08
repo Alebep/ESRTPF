@@ -21,6 +21,7 @@ class Monitor:
        self.tcpSocket = sk#socket.socket(socket.AF_INET, socket.SOCK_STREAM)
        self.timeSend = None
        self.timeRouteSelect = 0
+       self.__oneTime = True
        #self.rotas = rotas
     
     def selectBestRoute(self):
@@ -90,6 +91,7 @@ class Monitor:
     
     def Add(self, route, time):
         global count2
+        global predEmitter
         global routesMonitor
         global rotaSelect
         if(not self.thisRoutExists(route)):
@@ -107,7 +109,11 @@ class Monitor:
         if(count2 > 1):
             self.selectBestRoute()
             print(f"rota selecionada {rotaSelect}")
+            if(self.__oneTime):
+                predEmitter = rotaSelect[-1]
+                self.__oneTime = False
             print(routesMonitor)
+            print(f"emissor:{predEmitter} e emissor orig{rotaSelect[-1]}")
             
     def __receviAndSend(self, conn):
         global myIP
@@ -183,7 +189,23 @@ class Stream:
             if(x == addr):
                 verif = True
         return verif
-            
+    
+    def refresEmiiterStream(self):
+        global predEmitter
+        global rotaSelect
+        while True:
+            try:
+                if(predEmitter != rotaSelect[-1]):
+                    self.udpsocket.sendto(str('pause').encode(),(predEmitter, Port_Stream))
+                    changeRoute.set()
+                if(changeRoute.isSet()):
+                    predEmitter = rotaSelect[-1]
+                    self.udpsocket.sendto(str('stepup').encode(),(predEmitter, Port_Stream))
+                    changeRoute.clear()
+            except:
+                pass
+                #print('Sem rota ainda')
+    
     def AddTarget(self, addr):
         global target
         if(self.active):
@@ -198,6 +220,7 @@ class Stream:
     
     def main(self):
         global target
+        threading.Thread(target=self.refresEmiiterStream).start()
         print('Encaminhamento do Stream ativado')
         while True:
             self.activeOrNo()
@@ -449,8 +472,14 @@ target : list
 routesMonitor : dict
 #contador para rotas com tempo
 count2 : int
+# Varivel que guarda o primeiro emmissor do stream para esse no
+predEmitter : str
+# flag que marca a mudanca de rota, quando ela e ativada e mandada para o no emmissor o pedido para parar de enviar
+changeRoute : threading.Event()
+# flag que diz que que marca o primeiro boot
 
 def main():
+    global predEmitter
     global neighbors
     global routers
     global myIP
@@ -459,6 +488,7 @@ def main():
     global rotaSelect
     global routesMonitor
     global count2
+    predEmitter = ''
     routesMonitor = {}
     rotaSelect = []
     target = []
@@ -466,6 +496,7 @@ def main():
     count2 = 0
     routers = {}
     myIP = sys.argv[2]
+    changeRoute = threading.Event()
     #codigo tcp
     """try:
         if sys.argv[1] == '-bt':
@@ -506,15 +537,22 @@ def main():
             #print(neighbors[0])
     except:
         print('erro no BootStrap')
-    #"""
+    
+    """
     # construindo Rotas
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((myIP, Port_Monitor))
     ServerRoute = BuildRoute(s)
     RouteThread = threading.Thread(target=ServerRoute.main)
     RouteThread.start()
+    #"""
     
-    
+    #monitoramento
+    tcpMonitor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcpMonitor.bind((myIP,Port_realMonitor))
+    ServiceMonitor = Monitor(tcpMonitor)
+    thMonitor = threading.Thread(target=ServiceMonitor.main)
+    thMonitor.start()
     
     #Encaminhando o stream
     udpsocketStream = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -523,12 +561,14 @@ def main():
     serviceForwarding = threading.Thread(target=videoStream.main) 
     serviceForwarding.start()
     
+    """
     #monitoramento
     tcpMonitor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcpMonitor.bind((myIP,Port_realMonitor))
     ServiceMonitor = Monitor(tcpMonitor)
     thMonitor = threading.Thread(target=ServiceMonitor.main)
     thMonitor.start()
+    #"""
     
 if __name__ == "__main__":
 	main()

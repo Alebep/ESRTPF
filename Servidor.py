@@ -111,8 +111,8 @@ def Monitor(ip):
 		data = [t,time()]
 		sdata = pickle.dumps(data)
 		s.send(sdata)
-		sleep(20)
 		print('enviou')
+		sleep(30)
 		s.close()
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
@@ -122,7 +122,7 @@ def main():
     serverW = Servidor()
     global port
     global address
-    Boot(sys.argv[2])
+    #Boot(sys.argv[2])
     threading.Thread(target=Monitor, args=(sys.argv[2],)).start()
 	#serverW.
 	# variavel compartilhada em threadsW
