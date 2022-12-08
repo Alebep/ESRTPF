@@ -193,18 +193,22 @@ class Stream:
     def refresEmiiterStream(self):
         global predEmitter
         global rotaSelect
+        global target
+        global changeRoute
         while True:
             try:
                 if(predEmitter != rotaSelect[-1]):
-                    self.udpsocket.sendto(str('pause').encode(),(predEmitter, Port_Stream))
+                    if(len(target)>0):
+                        self.udpsocket.sendto(str('pause').encode(),(predEmitter, Port_Stream))
                     changeRoute.set()
                 if(changeRoute.isSet()):
                     predEmitter = rotaSelect[-1]
-                    self.udpsocket.sendto(str('stepup').encode(),(predEmitter, Port_Stream))
+                    if(len(target)>0):
+                        self.udpsocket.sendto(str('stepup').encode(),(predEmitter, Port_Stream))
                     changeRoute.clear()
             except:
-                pass
-                #print('Sem rota ainda')
+                #pass
+                print('Sem rota ainda')
     
     def AddTarget(self, addr):
         global target
@@ -479,6 +483,7 @@ changeRoute : threading.Event()
 # flag que diz que que marca o primeiro boot
 
 def main():
+    global changeRoute
     global predEmitter
     global neighbors
     global routers

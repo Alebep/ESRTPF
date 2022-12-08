@@ -105,6 +105,14 @@ def Monitor(ip):
 	#s.connect((ip, Port_realMonitor))
 	#sleep(1)
 	t = sys.argv[1]
+	firts = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	firts.connect((ip, Port_realMonitor))
+	data = [t,time()]
+	sdata = pickle.dumps(data)
+	firts.send(sdata)
+	print('enviou')
+	sleep(0.5)
+	firts.close()
 	while True:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((ip, Port_realMonitor))
@@ -112,8 +120,9 @@ def Monitor(ip):
 		sdata = pickle.dumps(data)
 		s.send(sdata)
 		print('enviou')
-		sleep(30)
+		sleep(15)
 		s.close()
+		sleep(15)
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
 
