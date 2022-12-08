@@ -105,6 +105,7 @@ def Monitor(ip):
 	#s.connect((ip, Port_realMonitor))
 	#sleep(1)
 	t = sys.argv[1]
+	"""
 	firts = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	firts.connect((ip, Port_realMonitor))
 	data = [t,time()]
@@ -113,6 +114,7 @@ def Monitor(ip):
 	print('enviou')
 	sleep(0.01)
 	firts.close()
+	#"""
 	while True:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((ip, Port_realMonitor))

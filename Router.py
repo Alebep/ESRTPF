@@ -73,12 +73,21 @@ class Monitor:
         global routesMonitor
         global count2
         verif = False
+        print(f"Valor do route no exite Monitor: {route}")
         if(count2 > 0):
             for i in range(count2):
-                if(route[:-1] == routesMonitor[i]['route']):
-                    print('igual')
-                    verif = True
-                    break
+                if(len(route[:-1]) == 1):
+                    if([route[0]] == routesMonitor[i]['route']):
+                        print('rota exite inic')
+                        print(route)
+                        print('rota exite Fim')
+                        verif = True
+                        break
+                else:
+                    if(route[:-1] == routesMonitor[i]['route']):
+                        print('igual')
+                        verif = True
+                        break
         return verif
 
     def position(self, route):
@@ -250,6 +259,7 @@ class Stream:
                         if(len(target) == 0):
                             self.sentToServer(packet)
                 except:
+                    print(rotaSelect)
                     print(f"origem:{rotaSelect[-1]}; destinos:{target}")
                     self.forwardingStream(packet)
                     #threading.Thread(target=self.forwardingStream, args=(packet)).start()
