@@ -250,7 +250,7 @@ class Stream:
                         if(len(target) == 0):
                             self.sentToServer(packet)
                 except:
-                    print(f"estoua a encaminhar {target}")
+                    print(f"origem:{rotaSelect[-1]}; destinos:{target}")
                     self.forwardingStream(packet)
                     #threading.Thread(target=self.forwardingStream, args=(packet)).start()
             else:
