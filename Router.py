@@ -137,7 +137,7 @@ class Monitor:
                         s.connect((x,Port_realMonitor))
                         #time.sleep(1)
                         s.send(sdata)
-                        sleep(0.39)
+                        sleep(0.001)
                         s.close()#"""
         
     def main(self):

@@ -111,7 +111,7 @@ def Monitor(ip):
 	sdata = pickle.dumps(data)
 	firts.send(sdata)
 	print('enviou')
-	sleep(0.5)
+	sleep(0.01)
 	firts.close()
 	while True:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,9 +120,9 @@ def Monitor(ip):
 		sdata = pickle.dumps(data)
 		s.send(sdata)
 		print('enviou')
-		sleep(15)
+		sleep(0.0015)
 		s.close()
-		sleep(15)
+		sleep(30)
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
 
