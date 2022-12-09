@@ -206,15 +206,17 @@ class Stream:
         global changeRoute
         while True:
             try:
-                if(predEmitter != rotaSelect[-1]):
-                    if(len(target)>0):
-                        self.udpsocket.sendto(str('pause').encode(),(predEmitter, Port_Stream))
-                    changeRoute.set()
-                if(changeRoute.isSet()):
-                    predEmitter = rotaSelect[-1]
-                    if(len(target)>0):
-                        self.udpsocket.sendto(str('stepup').encode(),(predEmitter, Port_Stream))
-                    changeRoute.clear()
+                #Essa condicao é s para garantir que o target nao envia pacotes para orgem caso venha a ser selctroute
+                if(not (rotaSelect[-1] in target)):
+                    if(predEmitter != rotaSelect[-1]):
+                        if(len(target)>0):
+                            self.udpsocket.sendto(str('pause').encode(),(predEmitter, Port_Stream))
+                        changeRoute.set()
+                    if(changeRoute.isSet()):
+                        predEmitter = rotaSelect[-1]
+                        if(len(target)>0):
+                            self.udpsocket.sendto(str('stepup').encode(),(predEmitter, Port_Stream)) 
+                        changeRoute.clear()
             except:
                 #pass
                 print('Sem rota ainda')
@@ -365,8 +367,8 @@ class Bootstrap:
     
     def Getneighbors(self):
         # A variavel dst contem o par ip:porta de quem fez o pedido, o que e feito e ir a lista buscar vizinhos
-        #self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
-        self.__neighbors_addr = Test[self.dst[0]]
+        self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
+        #self.__neighbors_addr = Test[self.dst[0]]
     
     def main(self):
         while True:
@@ -530,8 +532,8 @@ def main():
             tcpBootSocket = {}
             print('bootstrap ativado')
             #ThisNodeAddr = 
-            neighbors = Test[sys.argv[2]] #teste
-            #neighbors = nodes_neighbors[sys.argv[2]] #Final
+            #neighbors = Test[sys.argv[2]] #teste
+            neighbors = nodes_neighbors[sys.argv[2]] #Final
             #print(f"{Port_Boot}")
             tcpBootSocket['tcpSocket'] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
             tcpBootSocket['tcpSocket'].bind((sys.argv[2], Port_Boot))
