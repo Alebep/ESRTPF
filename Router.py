@@ -251,7 +251,7 @@ class Stream:
                         threading.Thread(target=self.AddTarget, args=(addr,)).start()
                         print('iniciar Enacminhamento ate o servidor')
                         #target.append(addr[0])
-                        if(not self.active):
+                        if(not self.active and (not (rotaSelect[-1] in target))):
                             print('vai para o servidor')
                             self.sentToServer(packet)
                             print('foi para o servidor')
