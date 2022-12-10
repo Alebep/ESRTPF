@@ -139,7 +139,7 @@ class Monitor:
     def viewRouteTable(self,routes,selctRoute):
         tamTime = 25
         tamRoute = 90
-        os.system('clear') or None
+        #_ = os.system('clear') #or None
         print('-'*(7+tamRoute+tamTime))
         print('|selct |'+' '*43+'route'+' '*43+'|       time'+' '*8+'  |')
         print('-'*(7+tamRoute+tamTime))
@@ -364,8 +364,8 @@ class Bootstrap:
     
     def Getneighbors(self):
         # A variavel dst contem o par ip:porta de quem fez o pedido, o que e feito e ir a lista buscar vizinhos
-        self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
-        #self.__neighbors_addr = Test[self.dst[0]]
+        #self.__neighbors_addr = nodes_neighbors[self.dst[0]]#Test[self.dst[0]]
+        self.__neighbors_addr = Test[self.dst[0]]
     
     def main(self):
         while True:
@@ -425,14 +425,15 @@ def main():
     changeRoute = threading.Event()
     
     #Bootstrap
+    #368 e 435, Teste e Final
     try:
         # argv[1] ->  ou -bt a dizer q e o bootstrap ou o ip do bootstrapper
         if(sys.argv[1] == '-bt'):
             tcpBootSocket = {}
             print('bootstrap ativado')
             #ThisNodeAddr = 
-            #neighbors = Test[sys.argv[2]] #teste
-            neighbors = nodes_neighbors[sys.argv[2]] #Final
+            neighbors = Test[sys.argv[2]] #teste
+            #neighbors = nodes_neighbors[sys.argv[2]] #Final
             #print(f"{Port_Boot}")
             tcpBootSocket['tcpSocket'] = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
             tcpBootSocket['tcpSocket'].bind((sys.argv[2], Port_Boot))
