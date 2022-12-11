@@ -10,10 +10,7 @@
 
 ## Objetivo
 
-Usando primariamente o emulador CORE como bancada de teste, e uma ou mais topologias de teste, pretende-se conceber um
-protótipo de entrega de vídeo com requisitos de tempo real, a partir de um servidor de conteúdos para um conjunto de
-N clientes. Para tal, um conjunto de nós pode ser usado no reenvio dos dados, como intermediários, formando entre si uma rede
-de overlay aplicacional, cuja criação e manutenção deve estar otimizada para a missão de entregar os conteúdos de forma mais eficiente, com o menor atraso e a largura de banda necessária. A forma como o overlay aplicacional se constitui e se organiza é determinante para a qualidade de serviço que é capaz de suportar.
+Usando primariamente o emulador CORE como bancada de teste, e uma ou mais topologias de teste, pretende-se conceber um protótipo de entrega de vídeo com requisitos de tempo real, a partir de um servidor de conteúdos para um conjunto de N clientes. Para tal, um conjunto de nós pode ser usado no reenvio dos dados, como intermediários, formando entre si uma rede de overlay aplicacional, cuja criação e manutenção deve estar otimizada para a missão de entregar os conteúdos de forma mais eficiente, com o menor atraso e a largura de banda necessária. A forma como o overlay aplicacional se constitui e se organiza é determinante para a qualidade de serviço que é capaz de suportar.
 
 ## COMO EXECUTAR:
   
