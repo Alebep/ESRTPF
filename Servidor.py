@@ -8,6 +8,8 @@ from VideoStream import VideoStream
 from RtpPacket import RtpPacket
 from time import time,sleep
 
+import time as tempo
+
 from Vars import *
 
 class Servidor:	
@@ -118,7 +120,7 @@ def Monitor(ip):
 	while True:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((ip, Port_realMonitor))
-		data = [t,time()]
+		data = [t, tempo.time_ns()]#[t,time()]
 		sdata = pickle.dumps(data)
 		s.send(sdata)
 		print('enviou')

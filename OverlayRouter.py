@@ -108,12 +108,13 @@ class Monitor:
         global neighbors
         packetList = conn.recv(BUFF_SIZE)
         print('recebeu monitoramento')
-        self.timeSend = tm.time()
+        #self.timeSend = tm.time()
+        self.timeSend = tm.time_ns()
         if packetList:
             RouteFromAnte = pickle.loads(packetList)
             if( type(RouteFromAnte)  == type(list())):
                 #tempo ate esse no em milisegundos
-                time = (self.timeSend - RouteFromAnte[-1])*1000
+                time = (self.timeSend - RouteFromAnte[-1])/1000000
                 self.Add(RouteFromAnte, time)
                 #RouteFromAnte[-1] representa o tempo com origem no servidor
                 data = RouteFromAnte[:-1] + [myIP, RouteFromAnte[-1]]
@@ -139,10 +140,11 @@ class Monitor:
     def viewRouteTable(self,routes,selctRoute):
         tamTime = 25
         tamRoute = 90
+        tamJump = 5
         #_ = os.system('clear') #or None
-        print('-'*(7+tamRoute+tamTime))
-        print('|selct |'+' '*43+'route'+' '*43+'|       time'+' '*8+'  |')
-        print('-'*(7+tamRoute+tamTime))
+        print('-'*(7+tamRoute+tamTime+tamJump))
+        print('|selct |'+' '*43+'route'+' '*43+'|       time'+' '*8+'  |'+'jump|')
+        print('-'*(7+tamRoute+tamTime+tamJump))
         l = ''
         for x in routes:
             if(selctRoute == routes[x]['route']):
@@ -151,8 +153,9 @@ class Monitor:
                 l = ''
             tam = len(list(str(routes[x]['route'])))
             tam2 = len(list(str(routes[x]['time'])))
-            print('|'+str(l)+' '*(6-len(str(l)))+'|'+str(routes[x]['route'])+' '*((tamRoute+1)-tam)+'|'+str(routes[x]['time'])+' '*(21-tam2)+'|')
-            print('-'*(7+tamRoute+tamTime))
+            valorJump = len(routes[x]['route'])-1
+            print('|'+str(l)+' '*(6-len(str(l)))+'|'+str(routes[x]['route'])+' '*((tamRoute+1)-tam)+'|'+str(routes[x]['time'])+' '*(21-tam2)+'|'+str(valorJump)+' '*3+'|')
+            print('-'*(7+tamRoute+tamTime+tamJump))
         
     @staticmethod
     def selectBestRouteByJump(tableRoute):
