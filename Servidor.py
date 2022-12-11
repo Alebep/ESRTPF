@@ -36,12 +36,6 @@ class Servidor:
 					if(nodeOverlay['com'].isSet()):
 						print('estou a mandar')
 						nodeOverlay['rtpSocket'].sendto(packet,(address,port))
-						# O nº de saltos é incrementado todas as vezes que o fluxo passa por um nó.
-						#init_num_jumps = '0' 
-						#nodeOverlay['rtpSocket'].sendto(bytes(init_num_jumps,'utf-8'),(address,port))
-						# Rota começa vazia e vai sendo construída ao longo das ligações.
-						#rota_inicial = 'Origem1'
-						#nodeOverlay['rtpSocket'].sendto(bytes(rota_inicial,'utf-8'),(address,port))
 					if(frameNumber == 500):
 						nodeOverlay['videoStream'] = VideoStream("movie.Mjpeg")
 				except:
@@ -78,17 +72,10 @@ class Servidor:
 			# Get the media file name
 			filename = "movie.Mjpeg"
 			print("Using provided video file ->  " + filename)
-			# Enviar para os próximos nós a stream de vídeo
-        	# bem como informação acerca das rotas e do nº de saltos.
-			#for i in range(1,len(sys.argv)):
 			# videoStream
 			nodeOverlay['videoStream'] = VideoStream(filename)
-			# sockets
-			#nodeOverlay['rtpPort'] = port
-			#nodeOverlay['rtpAddr'] = ip#sys.argv[1]
-			#print("Sending to Addr:" + nodeOverlay['rtpAddr'] + ":" + str(nodeOverlay['rtpPort']))
 			# Create a new socket for RTP/UDP
-			nodeOverlay["rtpSocket"] = sk#socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+			nodeOverlay["rtpSocket"] = sk
 			nodeOverlay['worker']= threading.Thread(target=self.sendRtp, args=(nodeOverlay,))
 			nodeOverlay['worker'].start()
 		except:
@@ -104,8 +91,6 @@ def Boot(ip):
 	s.close()
  
 def Monitor(ip):
-	#s.connect((ip, Port_realMonitor))
-	#sleep(1)
 	t = sys.argv[1]
 	"""
 	firts = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -123,10 +108,11 @@ def Monitor(ip):
 		data = [t, tempo.time_ns()]#[t,time()]
 		sdata = pickle.dumps(data)
 		s.send(sdata)
-		print('enviou')
+		print('pacote de monitoramento enviado')
 		sleep(0.0015)
 		s.close()
 		sleep(30)
+  
 # sys.argv[1] -> ip do servidor
 #sys.argv[2] -> ip do no a frente do servidor
 
@@ -157,7 +143,6 @@ def main():
                 address = addr[0]
                 port = addr[1]
                 nodeOverlay['com'].set()
-            	#(Servidor()).main(addr[0], addr[1], s, nodeOverlay)
             elif(msg.decode() == 'stop'):
                 nodeOverlay['event'].set()
             elif(msg.decode() == 'pause'):
