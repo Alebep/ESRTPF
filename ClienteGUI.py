@@ -63,6 +63,7 @@ class ClienteGUI:
 	
 	def exitClient(self):
 		"""Teardown button handler."""
+		self.pauseMovie()
 		self.master.destroy() # Close the gui window
 		os.remove(CACHE_FILE_NAME + str(self.sessionId) + CACHE_FILE_EXT) # Delete the cache image from video
 
