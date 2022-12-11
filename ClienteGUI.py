@@ -81,35 +81,15 @@ class ClienteGUI:
 	
 	def listenRtp(self):		
 		"""Listen for RTP packets."""
-		num_jumps = 0
-		rotas = ''
-		jumps_not_received=True
-		routes_not_received=True
 		while True:
-			#try:
-			data = self.rtpSocket.recv(BUFF_SIZE)
-			if data:
-				try:
-					data_decoded = data.decode('utf-8')
-					print(data_decoded)
-					# Se receber informação em vez do packet de vídeo:
-					"""if data_decoded[0]=='S':
-						if routes_not_received:
-							rotas = data_decoded + ' -> ' + self.addr + ' (Cliente)\n'
-							routes_not_received=False
-					else:
-						if jumps_not_received:
-							num_jumps = int(data_decoded) + 1
-							jumps_not_received = False"""
-				except:
+			try:
+				data = self.rtpSocket.recv(BUFF_SIZE)
+				if data:
 					rtpPacket = RtpPacket()
 					rtpPacket.decode(data)
 					
 					currFrameNbr = rtpPacket.seqNum()
 					print("Current Seq Num: " + str(currFrameNbr))
-					print(' ')
-					#print("Nº Saltos:",num_jumps)
-					#print('Rotas:',rotas)
 										
 					if(currFrameNbr == 500):
 						currFrameNbr = 0
@@ -122,8 +102,6 @@ class ClienteGUI:
 						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
 					except:
 						pass
-			"""		
-
 			except:
 				# Stop listening upon requesting PAUSE or TEARDOWN
 				if self.playEvent.isSet(): 
