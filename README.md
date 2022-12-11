@@ -16,21 +16,21 @@ N clientes. Para tal, um conjunto de nós pode ser usado no reenvio dos dados, c
 de overlay aplicacional, cuja criação e manutenção deve estar otimizada para a missão de entregar os conteúdos de forma mais eficiente, com o menor atraso e a largura de banda necessária. A forma como o overlay aplicacional se constitui e se organiza é determinante para a qualidade de serviço que é capaz de suportar
 
 ## COMO EXECUTAR:
-
-  * [O primeiro passo é executar o ficheiro OverlayRouter nos nós intermediarios:](#f)
-
-
-    O nó bootstrapper(só podemos ter um nó bootstrap):
   
-      $: python3 OverlayRouter.py -bt <ip do nó>
+  - `O primeiro passo é executar o ficheiro OverlayRouter nos nós intermediarios:`
+
+      O nó bootstrapper(só podemos ter um nó bootstrap):
+  
+        $: python3 OverlayRouter.py -bt <ip do nó>
     Outros nós:
   
-      $: python3 OverlayRouter.py <ip do bootstrapper> <ip do nó>
+        $: python3 OverlayRouter.py <ip do bootstrapper> <ip do nó>
+  - `Segundo passo rodar os codigo no(s) serviro(s):`
  
-  * [Segundo passo rodar os codigo no(s) serviro(s):](#f)
   
-      $: python3 Servidor.py <ip do servidor> <ip do nó logo a frente>
+        $: python3 Servidor.py <ip do servidor> <ip do nó logo a frente>
   
-  * [Ultimo passo, rodar nos clientes:](#f)
+  - `Ultimo passo, rodar nos clientes:`
   
-  $: python3 Cliente.py <ip do nó que vai fornecer o stream>
+  
+        $: python3 Cliente.py <ip do nó que vai fornecer o stream>
