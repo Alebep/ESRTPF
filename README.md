@@ -4,9 +4,9 @@
 
 ## Membros do Grupo:
 
-* [Alexandre Rosa](#Título-e-Imagem-de-capa)
-* [Isaías Eurico](#badges)
-* [Marcos Mussungo](#índice)
+* [Alexandre Rosa](https://github.com/Alebep/)
+* [Isaías Eurico](https://github.com/isaiaseurico)
+* [Marcos Mussungo](https://github.com/Firewall-Shodan)
 
 ## Objetivo
 
